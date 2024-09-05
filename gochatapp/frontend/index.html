@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+</head>
+<body>
+    <h1>Chat Room</h1>
+    <div>
+        <input type="text" id="usernameInput" placeholder="Enter your username" />
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <ul id="messagesList"></ul>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8080/ws");
+
+        // Handle incoming WebSocket messages
+        ws.onmessage = function(event) {
+            const msg = JSON.parse(event.data);
+            const messageList = document.getElementById("messagesList");
+            const li = document.createElement("li");
+            li.textContent = `${msg.username} [${msg.timestamp}]: ${msg.text}`;
+            messageList.appendChild(li);
+        };
+
+        // Send a message to the WebSocket server
+        function sendMessage() {
+            const username = document.getElementById("usernameInput").value;
+            const message = document.getElementById("messageInput").value;
+            const timestamp = new Date().toLocaleTimeString();
+
+            const msg = {
+                username: username,
+                text: message,
+                timestamp: timestamp
+            };
+
+            ws.send(JSON.stringify(msg));
+
+            // Clear the input fields
+            document.getElementById("messageInput").value = "";
+        }
+    </script>
+</body>
+</html>
